@@ -2,14 +2,8 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import axios from 'axios';
 import ReactPaginate from 'react-paginate';
-import { Box, Typography, Card, CardContent, CardActionArea, CardMedia } from '@mui/material';
-
-interface EstateItem {
-  id: string;
-  image_url: string;
-  name: string;
-  locality: string;
-}
+import { Box, Typography } from '@mui/material';
+import EstateItem from './components/EstateItem';
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -26,47 +20,30 @@ const App = () => {
     axios('http://localhost:5001/estates').then((result) => {
       setLoading(false);
       setEstates(result.data.data);
+      window.scrollTo(0, 0);
     });
   }, []);
 
   const handlePageClick = (event: { selected: number }) => {
     const newOffset = (event.selected * itemsPerPage) % estates?.length;
     setItemOffset(newOffset);
+    window.scrollTo(0, 0);
   };
 
   const EstatesItems = ({ currentItems }: { currentItems: EstateItem[] }) => {
-    return (
-      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', rowGap: '20px', columnGap: '20px', paddingTop: '20px', flexShrink: 1 }}>
-        {currentItems &&
-          currentItems.map((item: EstateItem) => (
-            <Card key={item.id} sx={{ minWidth: 345, maxWidth: 345, flex: '1 0 25%' }}>
-              <CardActionArea>
-                <CardMedia component='img' height='180' image={item.image_url} alt={item.name} />
-                <CardContent>
-                  <Typography gutterBottom variant='h5' component='div'>
-                    {item.name}
-                  </Typography>
-                  <Typography variant='body2' color='text.secondary'>
-                    {item.locality}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          ))}
-      </Box>
-    );
+    return <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', rowGap: '20px', columnGap: '20px', paddingTop: '20px', flexShrink: 1 }}>{currentItems && currentItems.map((item) => <EstateItem key={item.id} item={item} />)}</Box>;
   };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
       <Typography variant='h3'>Flats for sell</Typography>
-      <Box>
-        Items per page
+      <Box sx={{ width: '200px', display: 'flex', justifyContent: 'space-between' }}>
+        <Typography>Items per page</Typography>
         <select onChange={(e) => setItemsPerPage(parseInt(e.target.value))} defaultValue={itemsPerPage}>
-          <option value='5'>5</option>
+          <option value='6'>6</option>
           <option value='12'>12</option>
-          <option value='20'>20</option>
-          <option value='50'>50</option>
+          <option value='24'>24</option>
+          <option value='48'>48</option>
         </select>
       </Box>
       <Box>{loading ? 'Loading...' : <EstatesItems currentItems={currentItems} />}</Box>

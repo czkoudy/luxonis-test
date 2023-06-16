@@ -1,6 +1,6 @@
 FROM node:slim
-WORKDIR /luxonis
-COPY . /luxonis
+WORKDIR /server
+COPY . /server
 RUN npm install
 EXPOSE 5001
 CMD node index.js

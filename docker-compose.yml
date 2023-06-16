@@ -1,28 +1,30 @@
 version: '3.8'
 
 services:
-  # frontend:
-  #   build: ./frontend
-  #   ports:
-  #     - 8080:8080
-  # server:
-  #   build: ./server
-  #   ports:
-  #     - 5001:5001
-  #   environment:
-  #     DB_URL: postgresql://database/sreality
-
   database:
     image: postgres:latest
     restart: always
     environment:
-      - POSTGRES_USER=jakub
-      - POSTGRES_PASSWORD=jakub
+      POSTGRES_USER: jakub
+      POSTGRES_PASSWORD: jakub
+      POSTGRES_DB: jakub
     ports:
-      - 5432:5432
+      - '5432:5432'
     volumes:
-      - sreality:/var/lib/postgresql/data
-
+      - ./database/estates.sql:/docker-entrypoint-initdb.d/init.sql
+  frontend:
+    build: ./frontend
+    ports:
+      - 8080:8080
+  server:
+    build: ./server
+    depends_on:
+      - database
+    restart: always
+    ports:
+      - '5001:5001'
+    environment:
+      DB_URL: postgresql://database/jakub
 volumes:
   sreality:
     driver: local

@@ -1,2 +1,4 @@
 frontend/node_modules
 server/node_modules
+estates.json
+estates_raw.json
