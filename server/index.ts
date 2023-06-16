@@ -1,5 +1,6 @@
+import { Request, Response, Application } from 'express';
 import express from 'express';
-const app = express();
+const app: Application = express();
 import path from 'path';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -11,7 +12,7 @@ dotenvExpand.expand(myEnv);
 app.use(cors());
 
 start().then((dbClient: any) => {
-  app.get('/estates', async (req, res) => {
+  app.get('/estates', async (req: Request, res: Response) => {
     const { rows } = await dbClient.query('SELECT * FROM estates');
     return res.status(200).json({ success: true, data: rows, count: rows.length });
   });
