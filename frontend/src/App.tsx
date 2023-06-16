@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import ReactPaginate from 'react-paginate';
-import { Box, Typography } from '@mui/material';
-import EstateItem from './components/EstateItem';
+import { Alert, Box, Typography } from '@mui/material';
+import EstateItem, { EstateItemInterface } from './components/EstateItem';
 
-const App = () => {
+const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
-  const [estates, setEstates] = useState([]);
+  const [estates, setEstates] = useState<EstateItemInterface[]>([]);
   const [itemOffset, setItemOffset] = useState(0);
+  const [error, setError] = useState<AxiosError | false>(false);
 
   const [itemsPerPage, setItemsPerPage] = useState(12);
   const endOffset = itemOffset + itemsPerPage;
@@ -17,11 +18,16 @@ const App = () => {
 
   useEffect(() => {
     setLoading(true);
-    axios('http://localhost:5001/estates').then((result) => {
-      setLoading(false);
-      setEstates(result.data.data);
-      window.scrollTo(0, 0);
-    });
+    axios('http://localhost:5001/estates')
+      .then((result) => {
+        setLoading(false);
+        setEstates(result.data.data);
+        window.scrollTo(0, 0);
+      })
+      .catch((error: AxiosError) => {
+        setLoading(false);
+        setError(error);
+      });
   }, []);
 
   const handlePageClick = (event: { selected: number }) => {
@@ -30,7 +36,7 @@ const App = () => {
     window.scrollTo(0, 0);
   };
 
-  const EstatesItems = ({ currentItems }: { currentItems: EstateItem[] }) => {
+  const EstatesItems = ({ currentItems }: { currentItems: EstateItemInterface[] }) => {
     return <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', rowGap: '20px', columnGap: '20px', paddingTop: '20px', flexShrink: 1 }}>{currentItems && currentItems.map((item) => <EstateItem key={item.id} item={item} />)}</Box>;
   };
 
@@ -46,26 +52,38 @@ const App = () => {
           <option value='48'>48</option>
         </select>
       </Box>
-      <Box>{loading ? 'Loading...' : <EstatesItems currentItems={currentItems} />}</Box>
+      <Box>
+        {loading ? (
+          'Loading...'
+        ) : error ? (
+          <Alert severity='error' sx={{ marginTop: '20px' }}>
+            {error.message}
+          </Alert>
+        ) : (
+          <EstatesItems currentItems={currentItems} />
+        )}
+      </Box>
       <Box sx={{ marginTop: '20px' }}>
-        <ReactPaginate
-          breakLabel='...'
-          nextLabel='next >'
-          onPageChange={handlePageClick}
-          pageRangeDisplayed={1}
-          pageCount={pageCount}
-          previousLabel='< previous'
-          pageClassName='page-item'
-          pageLinkClassName='page-link'
-          previousClassName='page-item'
-          previousLinkClassName='page-link'
-          nextClassName='page-item'
-          nextLinkClassName='page-link'
-          breakClassName='page-item'
-          breakLinkClassName='page-link'
-          containerClassName='pagination'
-          activeClassName='active'
-        />
+        {error ? null : (
+          <ReactPaginate
+            breakLabel='...'
+            nextLabel='next >'
+            onPageChange={handlePageClick}
+            pageRangeDisplayed={1}
+            pageCount={pageCount}
+            previousLabel='< previous'
+            pageClassName='page-item'
+            pageLinkClassName='page-link'
+            previousClassName='page-item'
+            previousLinkClassName='page-link'
+            nextClassName='page-item'
+            nextLinkClassName='page-link'
+            breakClassName='page-item'
+            breakLinkClassName='page-link'
+            containerClassName='pagination'
+            activeClassName='active'
+          />
+        )}
       </Box>
     </Box>
   );
